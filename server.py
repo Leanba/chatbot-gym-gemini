@@ -10,11 +10,11 @@ app = Flask(__name__)
 def webhook():
     update_data = request.get_json(force=True)
 
-    # Conversión correcta
+    # Convertir JSON a Update (forma correcta en PTB v20+)
     update = Update.de_json(update_data, bot_app.bot)
 
-    # Procesar el update async
-    asyncio.get_event_loop().create_task(bot_app.process_update(update))
+    # Procesar el update en el EventLoop
+    asyncio.ensure_future(bot_app.process_update(update))
 
     return "OK", 200
 
