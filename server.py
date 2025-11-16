@@ -9,8 +9,11 @@ app = Flask(__name__)
 @app.route("/", methods=["POST"])
 def webhook():
     update_data = request.get_json(force=True)
-    update = Update.de_json(update_data, bot_app.bot)
-    asyncio.get_event_loop().create_task(bot_app.process_update(update))
+    update = Update.de_json(update_data, bot_app.application.bot)
+
+    # Ejecutar handler async correctamente
+    asyncio.run(bot_app.process_update(update))
+
     return "OK", 200
 
 @app.route("/", methods=["GET"])

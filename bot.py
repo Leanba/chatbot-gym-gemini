@@ -1,4 +1,5 @@
 import os
+import asyncio
 import google.generativeai as genai
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
@@ -34,19 +35,29 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     Explicá ejercicios, músculos que trabaja, rutinas y recomendaciones seguras.
     Si el usuario menciona lesiones, adaptá la respuesta.
     Podés sugerir videos de YouTube basados en el ejercicio.
-    
+
     Pregunta del usuario:
     {user_message}
     """
 
-    response = model.generate_content(prompt)
-    await update.message.reply_text(response.text)
+    # Llamada correcta a Gemini en thread
+    try:
+        response = await asyncio.to_thread(model.generate_content, prompt)
+
+        if not response or not hasattr(response, "text"):
+            await update.message.reply_text("⚠️ Error al generar la respuesta. Probá de nuevo.")
+            return
+
+        await update.message.reply_text(response.text)
+
+    except Exception as e:
+        await update.message.reply_text(f"⚠️ Error en el servidor: {str(e)}")
 
 def main():
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
     
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(filters.TEXT, handle_message))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     return app
 
