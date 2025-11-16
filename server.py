@@ -1,17 +1,19 @@
 import os
-from flask import Flask, request
 import asyncio
+from flask import Flask, request
+from telegram import Update
 from bot import bot_app
 
 app = Flask(__name__)
 
 @app.route("/", methods=["POST"])
 def webhook():
-    update_data = request.get_json(force=True)
-    
-    update = bot_app.bot._factory.update(update_data, bot_app.bot)
+    data = request.get_json(force=True)
 
-    # Ejecutamos el update en el event loop del bot
+    # Convertir JSON → Update
+    update = Update.de_json(data, bot_app.bot)
+
+    # Procesar el update de manera async
     asyncio.get_event_loop().create_task(bot_app.process_update(update))
 
     return "OK", 200
