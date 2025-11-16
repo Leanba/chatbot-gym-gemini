@@ -8,16 +8,14 @@ app = Flask(__name__)
 
 @app.route("/", methods=["POST"])
 def webhook():
-    data = request.get_json(force=True)
-
-    # Convertir JSON → Update
-    update = Update.de_json(data, bot_app.bot)
-
-    # Procesar el update de manera async
+    update_data = request.get_json(force=True)
+    update = Update.de_json(update_data, bot_app.bot)
     asyncio.get_event_loop().create_task(bot_app.process_update(update))
-
     return "OK", 200
 
+@app.route("/", methods=["GET"])
+def home():
+    return "Bot funcionando", 200
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8080))
