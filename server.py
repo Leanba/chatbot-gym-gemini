@@ -7,11 +7,18 @@ import uvicorn
 
 app = FastAPI()
 
+# Inicializar el bot cuando arranca FastAPI
+@app.on_event("startup")
+async def startup_event():
+    await bot_app.initialize()
+
 @app.post("/")
 async def webhook(request: Request):
+    """
+    Endpoint para recibir actualizaciones de Telegram.
+    """
     try:
         update_data = await request.json()
-        # Usar bot_app.bot en lugar de bot_app
         update = Update.de_json(update_data, bot_app.bot)
         await bot_app.process_update(update)
         return PlainTextResponse("OK", status_code=200)
@@ -23,6 +30,7 @@ async def webhook(request: Request):
 async def home():
     return PlainTextResponse("Bot funcionando", status_code=200)
 
+# Ejecutar local con uvicorn (solo para pruebas locales)
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8080))
     uvicorn.run(app, host="0.0.0.0", port=port)
