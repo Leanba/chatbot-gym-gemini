@@ -12,7 +12,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 # Configurar Gemini
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel("models/gemini-2.5-pro")
+model = genai.GenerativeModel("models/gemini-2.5-pro")  # Modelo correcto
 
 # Mensaje inicial
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -37,10 +37,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_message = update.message.text
     prompt = f"""
 Sos un asistente de gimnasio tipo personal trainer.
-Explicá ejercicios, músculos que trabaja, rutinas y recomendaciones seguras.
+Respondé de forma concisa, máximo 2-3 frases.
+Explicá ejercicios, músculos que trabaja y recomendaciones básicas.
 Si el usuario menciona lesiones, adaptá la respuesta.
-Podés sugerir videos de YouTube basados en el ejercicio.
-
 Pregunta del usuario:
 {user_message}
 """
@@ -49,22 +48,20 @@ Pregunta del usuario:
         # Llamada a Gemini en thread para no bloquear
         response = await asyncio.to_thread(model.generate_content, prompt)
 
-        if not response or not hasattr(response, "candidates") or len(response.candidates) == 0:
-            await update.message.reply_text("⚠️ Error al generar la respuesta. Probá de nuevo.")
+        # Extraer el texto de forma segura
+        text = ""
+        if hasattr(response, "candidates") and response.candidates:
+            candidate = response.candidates[0]
+            if hasattr(candidate, "content"):
+                for part in candidate.content:
+                    if hasattr(part, "text"):
+                        text += part.text
+
+        if not text:
+            await update.message.reply_text("⚠️ No pude generar la respuesta, probá otra vez.")
             return
 
-        # Extraer todo el texto de la primera candidata
-        gemini_candidate = response.candidates[0]
-        if hasattr(gemini_candidate, "content"):
-            # content puede ser lista de partes o un objeto
-            if isinstance(gemini_candidate.content, list):
-                gemini_text = "".join([part.text for part in gemini_candidate.content if hasattr(part, "text")])
-            else:
-                gemini_text = getattr(gemini_candidate.content, "text", str(gemini_candidate.content))
-        else:
-            gemini_text = str(gemini_candidate)
-
-        await update.message.reply_text(gemini_text)
+        await update.message.reply_text(text)
 
     except Exception as e:
         await update.message.reply_text(f"⚠️ Error en el servidor: {str(e)}")

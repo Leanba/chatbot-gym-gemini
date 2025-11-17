@@ -1,8 +1,8 @@
 import os
 from fastapi import FastAPI, Request
 from fastapi.responses import PlainTextResponse
-from bot import bot_app
 from telegram import Update
+from bot import bot_app
 import uvicorn
 
 app = FastAPI()
@@ -10,7 +10,7 @@ app = FastAPI()
 # Inicializar el bot al arrancar FastAPI
 @app.on_event("startup")
 async def startup_event():
-    # Inicializamos la aplicación de Telegram
+    # Esto asegura que Application de PTB se inicialice correctamente
     await bot_app.initialize()
 
 @app.post("/")
