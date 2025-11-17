@@ -46,7 +46,6 @@ Pregunta del usuario:
 """
 
     try:
-        # Llamada a Gemini en thread para no bloquear
         response = await asyncio.to_thread(model.generate_content, prompt)
 
         if not response or not hasattr(response, "candidates"):
@@ -60,10 +59,6 @@ Pregunta del usuario:
         await update.message.reply_text(f"⚠️ Error en el servidor: {str(e)}")
 
 # Inicializar bot
-def main():
-    app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    return app
-
-bot_app = main()
+application = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
+application.add_handler(CommandHandler("start", start))
+application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
