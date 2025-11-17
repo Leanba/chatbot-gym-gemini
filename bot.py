@@ -5,7 +5,6 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
 from dotenv import load_dotenv
 
-# Cargar variables de entorno
 load_dotenv()
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
@@ -50,12 +49,21 @@ Pregunta del usuario:
         # Llamada a Gemini en thread para no bloquear
         response = await asyncio.to_thread(model.generate_content, prompt)
 
-        if not response or not hasattr(response, "candidates"):
+        if not response or not hasattr(response, "candidates") or len(response.candidates) == 0:
             await update.message.reply_text("⚠️ Error al generar la respuesta. Probá de nuevo.")
             return
 
-        # Acceso correcto al texto
-        gemini_text = response.candidates[0].content.text
+        # Extraer todo el texto de la primera candidata
+        gemini_candidate = response.candidates[0]
+        if hasattr(gemini_candidate, "content"):
+            # content puede ser lista de partes o un objeto
+            if isinstance(gemini_candidate.content, list):
+                gemini_text = "".join([part.text for part in gemini_candidate.content if hasattr(part, "text")])
+            else:
+                gemini_text = getattr(gemini_candidate.content, "text", str(gemini_candidate.content))
+        else:
+            gemini_text = str(gemini_candidate)
+
         await update.message.reply_text(gemini_text)
 
     except Exception as e:
