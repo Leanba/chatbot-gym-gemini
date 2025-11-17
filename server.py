@@ -10,7 +10,7 @@ app = FastAPI()
 # Inicializar el bot al arrancar FastAPI
 @app.on_event("startup")
 async def startup_event():
-    # Esto asegura que Application de PTB se inicialice correctamente
+    # Inicializamos la aplicación de telegram
     await bot_app.initialize()
 
 @app.post("/")
@@ -18,6 +18,7 @@ async def webhook(request: Request):
     try:
         update_data = await request.json()
         update = Update.de_json(update_data, bot_app.bot)
+        # Procesar el update asincrónicamente
         await bot_app.process_update(update)
         return PlainTextResponse("OK", status_code=200)
     except Exception as e:
