@@ -1,3 +1,4 @@
+# server.py
 import os
 import asyncio
 from flask import Flask, request
@@ -8,18 +9,24 @@ app = Flask(__name__)
 
 @app.route("/", methods=["POST"])
 def webhook():
+    update_data = request.get_json(force=True)
+    update = Update.de_json(update_data, bot_app.bot)
+
     try:
-        update_data = request.get_json(force=True)
-        update = Update.de_json(update_data, bot_app.bot)
-        asyncio.create_task(bot_app.process_update(update))
-        return "OK", 200
-    except Exception as e:
-        print(f"Error procesando update: {e}")
-        return "Error", 500
+        # Ejecutamos la coroutine correctamente
+        asyncio.run(bot_app.process_update(update))
+    except RuntimeError:
+        # Si ya hay un loop corriendo (por ejemplo en dev), usamos ensure_future
+        loop = asyncio.get_event_loop()
+        loop.create_task(bot_app.process_update(update))
+
+    return "OK", 200
+
 
 @app.route("/", methods=["GET"])
 def home():
     return "Bot funcionando", 200
+
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8080))
