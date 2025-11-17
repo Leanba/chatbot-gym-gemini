@@ -7,15 +7,11 @@ import uvicorn
 
 app = FastAPI()
 
-# Inicializar el bot al arrancar FastAPI
-@app.on_event("startup")
-async def startup_event():
-    await bot_app.initialize()
-
 @app.post("/")
 async def webhook(request: Request):
     try:
         update_data = await request.json()
+        # Usar bot_app.bot en lugar de bot_app
         update = Update.de_json(update_data, bot_app.bot)
         await bot_app.process_update(update)
         return PlainTextResponse("OK", status_code=200)
