@@ -12,14 +12,14 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 # Configurar Gemini
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel("models/gemini-2.5-pro")
+model = genai.GenerativeModel("models/gemini-2.5-pro")  # Modelo correcto
 
 # Mensaje inicial
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not update.message:
         return
     await update.message.reply_text(
-        "🏋️‍♂️ ¡Hola! Soy tu asistente de gimnasio con IA.\n"
+        "🏋️‍♂ ¡Hola! Soy tu asistente de gimnasio con IA.\n"
         "Puedo ayudarte con:\n"
         "- Explicación de ejercicios\n"
         "- Músculos que trabaja cada movimiento\n"
@@ -46,24 +46,21 @@ Pregunta del usuario:
 """
 
     try:
-        # Llamada a Gemini en un thread para no bloquear el loop
+        # Llamada a Gemini en thread para no bloquear
         response = await asyncio.to_thread(model.generate_content, prompt)
 
-        if not response or not hasattr(response, "candidates"):
+        if not response or not hasattr(response, "candidates") or not response.candidates:
             await update.message.reply_text("⚠️ Error al generar la respuesta. Probá de nuevo.")
             return
 
-        # Concatenar todo el texto de la respuesta
-        gemini_text = ""
-        for candidate in response.candidates:
-            for part in candidate.content:
-                if hasattr(part, "text") and part.text:
-                    gemini_text += part.text + "\n"
+        # Acceso corregido al contenido
+        candidate = response.candidates[0]
+        if hasattr(candidate, "content") and hasattr(candidate.content, "text"):
+            gemini_text = candidate.content.text
+        else:
+            gemini_text = "⚠️ Error al generar la respuesta. Probá de nuevo."
 
-        if not gemini_text.strip():
-            gemini_text = "⚠️ No se pudo generar texto de Gemini."
-
-        await update.message.reply_text(gemini_text.strip())
+        await update.message.reply_text(gemini_text)
 
     except Exception as e:
         await update.message.reply_text(f"⚠️ Error en el servidor: {str(e)}")
@@ -76,3 +73,4 @@ def main():
     return app
 
 bot_app = main()
+
