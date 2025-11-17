@@ -7,15 +7,15 @@ from dotenv import load_dotenv
 
 # Cargar variables de entorno
 load_dotenv()
+
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 # Configurar Gemini
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel("models/gemini-2.5-pro")  # Modelo correcto
+model = genai.GenerativeModel("models/gemini-2.5-pro")
 
-# --- Handlers del bot ---
-
+# Mensaje inicial
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not update.message:
         return
@@ -30,6 +30,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "Escribime tu duda cuando quieras 💪"
     )
 
+# Manejo de mensajes de texto
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not update.message or not update.message.text:
         return
@@ -46,27 +47,25 @@ Pregunta del usuario:
 """
 
     try:
-        # Llamada a Gemini en thread para no bloquear event loop
+        # Llamada a Gemini en thread para no bloquear
         response = await asyncio.to_thread(model.generate_content, prompt)
 
-        if not response or not hasattr(response, "candidates") or not response.candidates:
+        if not response or not hasattr(response, "candidates"):
             await update.message.reply_text("⚠️ Error al generar la respuesta. Probá de nuevo.")
             return
 
-        # Acceder correctamente al texto del candidato
-        gemini_text = response.candidates[0].content[0].text if hasattr(response.candidates[0].content[0], "text") else str(response.candidates[0].content[0])
+        # Acceso correcto al texto
+        gemini_text = response.candidates[0].content.text
         await update.message.reply_text(gemini_text)
 
     except Exception as e:
         await update.message.reply_text(f"⚠️ Error en el servidor: {str(e)}")
 
-# --- Inicializar Application ---
-
+# Inicializar bot
 def main():
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     return app
 
-# Bot global para usar desde server.py
 bot_app = main()
