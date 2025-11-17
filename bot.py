@@ -12,7 +12,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 # Configurar Gemini
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel("models/gemini-2.5-pro")  # Modelo correcto
+model = genai.GenerativeModel("models/gemini-2.5-pro")
 
 # Mensaje inicial
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -46,23 +46,24 @@ Pregunta del usuario:
 """
 
     try:
-        # Llamada a Gemini en thread para no bloquear
+        # Llamada a Gemini en un thread para no bloquear el loop
         response = await asyncio.to_thread(model.generate_content, prompt)
 
-        # Revisar que la respuesta tenga candidates
-        if not response or not hasattr(response, "candidates") or not response.candidates:
+        if not response or not hasattr(response, "candidates"):
             await update.message.reply_text("⚠️ Error al generar la respuesta. Probá de nuevo.")
             return
 
-        # Extraer el texto
-        gemini_text = response.candidates[0].content
-        # content puede ser string directo o lista de objetos según versión
-        if isinstance(gemini_text, list):
-            gemini_text = "".join([c.text if hasattr(c, "text") else str(c) for c in gemini_text])
-        elif hasattr(gemini_text, "text"):
-            gemini_text = gemini_text.text
+        # Concatenar todo el texto de la respuesta
+        gemini_text = ""
+        for candidate in response.candidates:
+            for part in candidate.content:
+                if hasattr(part, "text") and part.text:
+                    gemini_text += part.text + "\n"
 
-        await update.message.reply_text(gemini_text)
+        if not gemini_text.strip():
+            gemini_text = "⚠️ No se pudo generar texto de Gemini."
+
+        await update.message.reply_text(gemini_text.strip())
 
     except Exception as e:
         await update.message.reply_text(f"⚠️ Error en el servidor: {str(e)}")
