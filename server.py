@@ -8,21 +8,18 @@ app = Flask(__name__)
 
 @app.route("/", methods=["POST"])
 def webhook():
-    update_data = request.get_json(force=True)
-
-    # Convertir JSON a Update (forma correcta en PTB v20+)
-    update = Update.de_json(update_data, bot_app.bot)
-
-    # Procesar el update en el EventLoop
-    asyncio.ensure_future(bot_app.process_update(update))
-
-    return "OK", 200
-
+    try:
+        update_data = request.get_json(force=True)
+        update = Update.de_json(update_data, bot_app.bot)
+        asyncio.create_task(bot_app.process_update(update))
+        return "OK", 200
+    except Exception as e:
+        print(f"Error procesando update: {e}")
+        return "Error", 500
 
 @app.route("/", methods=["GET"])
 def home():
     return "Bot funcionando", 200
-
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8080))
