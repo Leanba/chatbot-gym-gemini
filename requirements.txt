@@ -1,4 +1,4 @@
-python-telegram-bot==21.7
+python-telegram-bot==22.5
 Flask[async]==3.0.3
 google-generativeai
 python-dotenv
