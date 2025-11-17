@@ -7,19 +7,17 @@ import uvicorn
 
 app = FastAPI()
 
+# Inicializar el bot al arrancar FastAPI
+@app.on_event("startup")
+async def startup_event():
+    await bot_app.initialize()
+
 @app.post("/")
 async def webhook(request: Request):
-    """
-    Webhook de Telegram.
-    Recibe los updates y los pasa al Application de PTB.
-    """
     try:
         update_data = await request.json()
         update = Update.de_json(update_data, bot_app.bot)
-
-        # Ejecutar el coroutine de PTB sin bloquear
         await bot_app.process_update(update)
-
         return PlainTextResponse("OK", status_code=200)
     except Exception as e:
         print("Error procesando update:", e)
@@ -31,5 +29,4 @@ async def home():
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8080))
-    # Usamos uvicorn directamente para desarrollo local
     uvicorn.run(app, host="0.0.0.0", port=port)

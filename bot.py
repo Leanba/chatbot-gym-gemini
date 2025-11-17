@@ -47,28 +47,20 @@ Pregunta del usuario:
 
     try:
         # Llamada a Gemini en thread para no bloquear
-        response = await asyncio.to_thread(model.generate_content, {"text": prompt})
+        response = await asyncio.to_thread(model.generate_content, prompt)
 
-        # Verificar candidatos
-        if not response.candidates:
+        # Revisar que la respuesta tenga candidates
+        if not response or not hasattr(response, "candidates") or not response.candidates:
             await update.message.reply_text("⚠️ Error al generar la respuesta. Probá de nuevo.")
             return
 
-        # Acceder al texto generado según la versión actual
-        candidate = response.candidates[0]
-
-        # Dependiendo de la versión, puede venir en output_text o content
-        if hasattr(candidate, "output_text"):
-            gemini_text = candidate.output_text
-        elif hasattr(candidate, "content"):
-            # 'content' es un objeto, no una lista, se accede a candidate.content[0].text si es lista
-            try:
-                gemini_text = candidate.content[0].text
-            except Exception:
-                # fallback: convertir a string
-                gemini_text = str(candidate.content)
-        else:
-            gemini_text = "⚠️ No se pudo obtener la respuesta de Gemini."
+        # Extraer el texto
+        gemini_text = response.candidates[0].content
+        # content puede ser string directo o lista de objetos según versión
+        if isinstance(gemini_text, list):
+            gemini_text = "".join([c.text if hasattr(c, "text") else str(c) for c in gemini_text])
+        elif hasattr(gemini_text, "text"):
+            gemini_text = gemini_text.text
 
         await update.message.reply_text(gemini_text)
 
