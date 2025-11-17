@@ -12,7 +12,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 # Configurar Gemini
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel("models/gemini-2.5-pro")  # Modelo correcto
+model = genai.GenerativeModel("gemini-2.5-pro")  # Modelo correcto
 
 # Mensaje inicial
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -39,26 +39,32 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 Sos un asistente de gimnasio tipo personal trainer.
 Explicá ejercicios, músculos que trabaja, rutinas y recomendaciones seguras.
 Si el usuario menciona lesiones, adaptá la respuesta.
-Podés sugerir videos de YouTube basados en el ejercicio.
+Podés sugerir links de videos de YouTube basados en el ejercicio.
 
 Pregunta del usuario:
 {user_message}
 """
 
     try:
+        # Llamada a Gemini en thread para no bloquear
         response = await asyncio.to_thread(model.generate_content, prompt)
 
         if not response or not hasattr(response, "candidates"):
             await update.message.reply_text("⚠️ Error al generar la respuesta. Probá de nuevo.")
             return
 
-        gemini_text = response.candidates[0].content[0].text
+        # Corregido: acceder al contenido correctamente
+        gemini_text = response.candidates[0].content.text
         await update.message.reply_text(gemini_text)
 
     except Exception as e:
         await update.message.reply_text(f"⚠️ Error en el servidor: {str(e)}")
 
 # Inicializar bot
-application = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
-application.add_handler(CommandHandler("start", start))
-application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+def main():
+    app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    return app
+
+bot_app = main()

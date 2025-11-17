@@ -2,24 +2,22 @@ import os
 from fastapi import FastAPI, Request
 from fastapi.responses import PlainTextResponse
 from telegram import Update
-from bot import application as bot_app
-import asyncio
+from bot import bot_app
 import uvicorn
 
 app = FastAPI()
 
-# Inicializar Telegram Application antes de recibir updates
-asyncio.run(bot_app.initialize())
+# Inicializar Telegram Bot al arrancar FastAPI
+@app.on_event("startup")
+async def startup():
+    await bot_app.initialize()
 
 @app.post("/")
 async def webhook(request: Request):
     try:
         update_data = await request.json()
         update = Update.de_json(update_data, bot_app.bot)
-
-        # Procesar update
         await bot_app.process_update(update)
-
         return PlainTextResponse("OK", status_code=200)
     except Exception as e:
         print("Error procesando update:", e)
@@ -28,6 +26,7 @@ async def webhook(request: Request):
 @app.get("/")
 async def home():
     return PlainTextResponse("Bot funcionando", status_code=200)
+
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8080))
