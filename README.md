@@ -2,7 +2,7 @@
 
 # 
 
-# Este proyecto consiste en el desarrollo de un bot conversacional inteligente utilizando Python, Flask, Telegram Bot API y un modelo de IA moderno (Gemini / OpenAI), como parte del Trabajo Integrador Final – Sistemas Inteligentes Aplicados.
+# Este proyecto consiste en el desarrollo de un bot conversacional inteligente utilizando Python, Flask, Telegram Bot API y un modelo de IA moderno en ese caso con Gemini, como parte del Trabajo Integrador Final – Sistemas Inteligentes Aplicados.
 
 # 
 
@@ -50,7 +50,7 @@
 
 # 
 
-# Modelo de lenguaje (Gemini / OpenAI)
+# Modelo de lenguaje Gemini
 
 # 
 
