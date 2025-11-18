@@ -1,8 +1,8 @@
 import os
 from fastapi import FastAPI, Request
 from fastapi.responses import PlainTextResponse
-from telegram import Update
 from bot import bot_app
+from telegram import Update
 import uvicorn
 
 app = FastAPI()
@@ -10,7 +10,7 @@ app = FastAPI()
 # Inicializar el bot al arrancar FastAPI
 @app.on_event("startup")
 async def startup_event():
-    # Inicializamos la aplicación de telegram
+    # Inicializamos la aplicación de Telegram
     await bot_app.initialize()
 
 @app.post("/")
@@ -18,7 +18,6 @@ async def webhook(request: Request):
     try:
         update_data = await request.json()
         update = Update.de_json(update_data, bot_app.bot)
-        # Procesar el update asincrónicamente
         await bot_app.process_update(update)
         return PlainTextResponse("OK", status_code=200)
     except Exception as e:
