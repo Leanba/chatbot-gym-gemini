@@ -12,15 +12,15 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 # Configurar Gemini
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel("models/gemini-2.5-pro")  # Modelo correcto
+model = genai.GenerativeModel("models/gemini-2.5-pro")
 
 # Función para enviar mensajes largos a Telegram
 async def send_long_message(update, text):
-    MAX_LEN = 4096  # límite de Telegram
+    MAX_LEN = 4096  # límite Telegram
     for i in range(0, len(text), MAX_LEN):
         await update.message.reply_text(text[i:i + MAX_LEN])
 
-# Mensaje inicial
+# /start
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not update.message:
         return
@@ -35,45 +35,45 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "Escribime tu duda cuando quieras 💪"
     )
 
-# Manejo de mensajes de texto
+# Mensajes normales
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not update.message or not update.message.text:
         return
 
     user_message = update.message.text
+
     prompt = f"""
 Sos un asistente de gimnasio tipo personal trainer.
-Respondés de forma corta, concisa y clara, de 2 a 3 frases.
+Respondé de forma corta, concisa y clara (2–3 frases máximo).
 Explicá ejercicios, músculos que trabaja, rutinas y recomendaciones seguras.
 Si el usuario menciona lesiones, adaptá la respuesta.
-Podés sugerir links de videos de YouTube basados en el ejercicio si el usuario así lo quiere.
+No uses formato raro ni JSON, solo texto directo.
 
 Pregunta del usuario:
 {user_message}
 """
 
     try:
-        # Llamada a Gemini en thread para no bloquear
+        # Ejecutar Gemini en un thread aparte
         response = await asyncio.to_thread(model.generate_content, prompt)
 
-        if not response or not hasattr(response, "candidates"):
-            await update.message.reply_text("⚠️ Error al generar la respuesta. Probá de nuevo.")
-            return
-
-        # Extraemos el texto correctamente
-        gemini_content = response.candidates[0].content
+        # Extraer texto limpio
         gemini_text = ""
 
-        # Convertir la lista de partes en texto
-        if isinstance(gemini_content, list):
-            for part in gemini_content:
+        try:
+            content = response.candidates[0].content
+            for part in content:
                 if hasattr(part, "text"):
                     gemini_text += part.text
-        else:
-            # Si no es lista, intentar convertir a string directo
-            gemini_text = str(gemini_content)
+            gemini_text = gemini_text.strip()
+        except Exception:
+            # Backup por si cambia el formato
+            if hasattr(response, "text"):
+                gemini_text = response.text.strip()
+            else:
+                gemini_text = "⚠ No pude interpretar la respuesta del modelo."
 
-        # Enviar respuesta a Telegram
+        # Enviar respuesta limpia
         await send_long_message(update, gemini_text)
 
     except Exception as e:
