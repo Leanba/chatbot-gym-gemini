@@ -57,7 +57,7 @@ REGLAS OBLIGATORIAS:
 - Evitá tecnicismos innecesarios.
 - No des diagnósticos médicos ni planes clínicos.
 - Formato siempre en Markdown simple:
-  - Viñetas con "-"
+  - Viñetas con emojis de gimnasio (nada de *)
   - Nada de párrafos largos
   - Usar emojis de forma moderada
 No uses formato raro ni JSON, solo texto directo.
