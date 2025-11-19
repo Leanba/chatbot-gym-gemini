@@ -6,7 +6,7 @@
 
 # 
 
-# &nbsp; Objetivo del Bot
+#   Objetivo del Bot
 
 # 
 
@@ -34,11 +34,11 @@
 
 # 
 
-# &nbsp;Tecnologías utilizadas
+#  Tecnologías utilizadas
 
 # 
 
-# Python 3.12
+# Python 3.13
 
 # 
 
