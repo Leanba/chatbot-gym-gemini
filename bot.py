@@ -65,14 +65,13 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     USER_HISTORY[update.effective_user.id] = []
 
     await update.message.reply_text(
-        "🏋️‍♂️ ¡Bienvenido! Soy tu asistente de gimnasio con IA.\n"
+        "🏋️‍♂️ ¡Bienvenido! Soy tu GYMBRO de gimnasio con IA.\n"
         "Puedo ayudarte con:\n"
         "• Ejercicios y técnicas correctas\n"
         "• Músculos involucrados en cada movimiento\n"
         "• Rutinas recomendadas según objetivo\n"
         "• Consejos si tenés molestias o dudas\n\n"
         "Envíame tu consulta cuando quieras 💪"
-        "Usá /help para ver todas mis funciones."
     )
 
 # ------------------------------------------------------------
