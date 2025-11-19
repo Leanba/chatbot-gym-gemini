@@ -17,9 +17,7 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 # ------------------------------------------------------------
-# CONFIGURACIÓN DEL MODELO DE IA (Google Gemini)
-# Este modelo cumple con el requisito del examen de usar una
-# API externa de IA.
+# CONFIGURACIÓN DEL MODELO DE IA con Google Gemini
 # ------------------------------------------------------------
 genai.configure(api_key=GEMINI_API_KEY)
 
@@ -45,8 +43,7 @@ async def send_long_message(update, text):
         await update.message.reply_text(text[i:i + MAX_LEN])
 
 # ------------------------------------------------------------
-# FUNCIÓN: Análisis de sentimiento (herramienta simulada)
-# Requisito del examen: usar "tool/function calling" para
+# FUNCIÓN: Análisis de sentimiento. Uso "tool/function calling" para
 # alguna tarea específica. Esta función actúa como herramienta.
 # ------------------------------------------------------------
 def sentiment_tool(text: str):
