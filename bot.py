@@ -16,9 +16,9 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 # ------------------------------------------------------------
 # CONFIGURACIÓN DEL MODELO DE IA
-# En el examen pedían usar una API externa de IA.
-# Acá usamos Google Gemini y actualizamos al modelo solicitado.
-# Además, seteamos temperature baja para respuestas rápidas.
+# Se pide usar una API externa de IA
+# Acá usamos Google Gemini y actualizamos al modelo solicitado
+# Además, seteamos temperature baja para respuestas rápidas
 # ------------------------------------------------------------
 
 genai.configure(api_key=GEMINI_API_KEY)
@@ -60,7 +60,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # ------------------------------------------------------------
 # MANEJO DE MENSAJES
 # Acá enviamos el texto del usuario al modelo Gemini
-# aplicando un prompt que define el estilo del asistente.
+# aplicando un prompt que define el estilo del asistente
 # ------------------------------------------------------------
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not update.message or not update.message.text:
@@ -72,11 +72,12 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     prompt = f"""
 Sos un Personal Trainer profesional.
 Respondé siempre de forma clara, resumida y fácil de entender.
+Preguntá si está por comenzar la sesión de entramiento para saber si responder de forma corta o explicativa si es el caso de que la persona no está en el gym y está en su casa.
 
 REGLAS:
-- Máximo 10 líneas.
+- Máximo 10 líneas para explicar durante el entrenamiento.
 - Escribí como un coach real: directo, amable y práctico.
-- Para ejercicios usá:
+- Cuando expliques ejercicios, usá esta estructura con emojis:
   1. Ejecución
   2. Músculos principales
   3. Consejos / errores comunes
@@ -84,7 +85,13 @@ REGLAS:
 - No uses tecnicismos innecesarios.
 - No des diagnósticos médicos.
 - Formato en Markdown simple con viñetas y emojis de gimnasio.
-
+FORMATO ESTRICTO:
+- NO usar negritas (** **), ni asteriscos, ni Markdown.
+- NO usar títulos en mayúsculas.
+- SOLO usar viñetas con emojis deportivos (🔹 💪 🏋️‍♂️ 🔸).
+- Frases cortas y fáciles de leer.
+- No escribir párrafos largos.
+- No diagnósticos médicos ni lenguaje técnico innecesario.
 Pregunta del usuario:
 {user_message}
 """
