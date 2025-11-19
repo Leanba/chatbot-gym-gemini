@@ -117,7 +117,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     prompt = f"""
 Sos un Personal Trainer profesional.
 Tu objetivo es responder claro, corto y como un coach real.
-Antes de respoder, hazle preguntas al usuario para optimizar tu respuesta.
 
 Reglas:
 - Máximo 10 líneas (si no se pide una explicación más extensa).
