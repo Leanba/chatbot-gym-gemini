@@ -34,18 +34,17 @@ model = genai.GenerativeModel(
 # Diccionario para guardar historial por usuario
 USER_HISTORY = {}
 
-# ------------------------------------------------------------
 # Función auxiliar: dividir textos largos para Telegram
-# ------------------------------------------------------------
+
 async def send_long_message(update, text):
     MAX_LEN = 4096
     for i in range(0, len(text), MAX_LEN):
         await update.message.reply_text(text[i:i + MAX_LEN])
 
-# ------------------------------------------------------------
+
 # FUNCIÓN: Análisis de sentimiento. Uso "tool/function calling" para
 # alguna tarea específica. Esta función actúa como herramienta.
-# ------------------------------------------------------------
+
 def sentiment_tool(text: str):
     text = text.lower()
     if any(w in text for w in ["enojado", "mal", "triste", "estresado"]):
@@ -55,9 +54,8 @@ def sentiment_tool(text: str):
     return "🔹 Sentimiento neutro detectado."
 
 
-# ------------------------------------------------------------
 # COMANDO /start
-# ------------------------------------------------------------
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     USER_HISTORY[update.effective_user.id] = []
 
@@ -71,9 +69,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "Envíame tu consulta cuando quieras 💪"
     )
 
-# ------------------------------------------------------------
 # COMANDO /help
-# ------------------------------------------------------------
+
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "📌 *Comandos disponibles:*\n"
@@ -84,16 +81,16 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "Enviá cualquier duda sobre ejercicios, rutinas o entrenamiento."
     )
 
-# ------------------------------------------------------------
 # COMANDO /reset → limpia historial
-# ------------------------------------------------------------
+
 async def reset(update: Update, context: ContextTypes.DEFAULT_TYPE):
     USER_HISTORY[update.effective_user.id] = []
     await update.message.reply_text("🧹 Historial borrado correctamente.")
 
-# ------------------------------------------------------------
+
 # COMANDO /stats → estadísticas del usuario
-# ------------------------------------------------------------
+
+
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     count = len(USER_HISTORY.get(user_id, []))
@@ -104,9 +101,8 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"Modelo IA: Gemini Flash Lite"
     )
 
-# ------------------------------------------------------------
 # MANEJO DE MENSAJES DEL USUARIO
-# ------------------------------------------------------------
+
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     user_message = update.message.text
@@ -161,9 +157,9 @@ Mensaje del usuario:
         await update.message.reply_text(f"⚠ Error en servidor: {str(e)}")
 
 
-# ------------------------------------------------------------
+
 # FUNCIÓN PRINCIPAL
-# ------------------------------------------------------------
+
 def main():
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
 
