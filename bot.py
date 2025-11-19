@@ -66,7 +66,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text(
         "🏋️‍♂️ ¡Bienvenido! Soy tu asistente de gimnasio con IA.\n"
-        "Puedo ayudarte a mejorar técnica, rutinas y resolver dudas.\n"
+        "Puedo ayudarte con:\n"
+        "• Ejercicios y técnicas correctas\n"
+        "• Músculos involucrados en cada movimiento\n"
+        "• Rutinas recomendadas según objetivo\n"
+        "• Consejos si tenés molestias o dudas\n\n"
+        "Envíame tu consulta cuando quieras 💪"
         "Usá /help para ver todas mis funciones."
     )
 
@@ -116,20 +121,20 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # ----- Herramienta: Análisis de sentimientos -----
     sentimiento = sentiment_tool(user_message)
 
-    # Aquí se arma el prompt para la IA
+    # Aca se arma el prompt para la IA
     prompt = f"""
 Sos un Personal Trainer profesional.
 Tu objetivo es responder claro, corto y como un coach real.
 
 Reglas:
-- Máximo 10 líneas.
+- Máximo 10 líneas (si no se pide una explicación más extensa).
 - Estilo simple, amable y directo.
 - Cuando expliques ejercicios, usá estructura con emojis:
-  🔹 Ejecución
-  🔹 Músculos
-  🔹 Consejos
+  1. Ejecución
+  2. Músculos
+  3. Consejos
 - Sin negritas ni Markdown.
-- Usá viñetas con emojis.
+- Usá viñetas con emojis de forma moderada.
 - Nada de tecnicismos innecesarios.
 - Nada de diagnósticos médicos.
 
